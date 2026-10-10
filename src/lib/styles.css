@@ -1,7 +1,7 @@
 /*
  * drawer-svelte optional stylesheet.
  *
- *   import 'drawer-svelte/styles.css';
+ *   import '@luckyhv/drawer-svelte/styles.css';
  *
  * Everything is wrapped in :where() (zero specificity), so any class you put
  * on a part wins. Colours resolve as `var(--drawer-X, var(--_X))`: set the

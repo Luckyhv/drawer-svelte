@@ -109,6 +109,6 @@
 		<tr><td><code>getDrawerContext()</code></td><td>The drawer state inside any part (for custom parts): <code>open()</code>, <code>close()</code>, <code>snapTo(i)</code>, <code>activeSnap</code>, <code>dragging</code>…</td></tr>
 		<tr><td><code>DEFAULT_EASE</code></td><td>The default timing function.</td></tr>
 		<tr><td>types</td><td><code>Direction</code>, <code>SnapPoint</code>, <code>DrawerTheme</code>, <code>DrawerColors</code></td></tr>
-		<tr><td><code>drawer-svelte/styles.css</code></td><td>Optional stylesheet.</td></tr>
+		<tr><td><code>@luckyhv/drawer-svelte/styles.css</code></td><td>Optional stylesheet.</td></tr>
 	</tbody>
 </table>

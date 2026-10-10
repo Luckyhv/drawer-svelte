@@ -5,7 +5,7 @@
 	type Props = HTMLAttributes<HTMLDivElement> & {
 		ref?: HTMLElement | null;
 		/**
-		 * Preset look from `drawer-svelte/styles.css` (import it once). Leave unset
+		 * Preset look from `@luckyhv/drawer-svelte/styles.css` (import it once). Leave unset
 		 * to style it yourself; the drawer is headless by default.
 		 */
 		variant?: 'sheet' | 'floating' | 'side';

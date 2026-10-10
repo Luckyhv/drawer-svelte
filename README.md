@@ -19,14 +19,14 @@ Docs and live demos: run `npm run dev` (or deploy the site, see below).
 ## Install
 
 ```sh
-npm i drawer-svelte
+npm i @luckyhv/drawer-svelte
 ```
 
 ## Usage
 
 ```svelte
 <script>
-	import { Drawer } from 'drawer-svelte';
+	import { Drawer } from '@luckyhv/drawer-svelte';
 	let open = $state(false);
 </script>
 
@@ -79,7 +79,7 @@ Add `data-drawer-no-drag` to any element that must never start a drag.
 
 ```svelte
 <script>
-	import 'drawer-svelte/styles.css';
+	import '@luckyhv/drawer-svelte/styles.css';
 </script>
 
 <Drawer.Root bind:open theme="auto" colors={{ bg: '#101014', fg: '#f4f4f5', accent: '#5fd39a' }}>
@@ -146,8 +146,8 @@ npm run build          # static site in build/ + the package in dist/
 
 ## Publishing
 
-`drawer-svelte` is taken on npm, so publish under a scope: set `"name": "@your-scope/drawer-svelte"`
-in package.json, then `npm publish --access public` (runs type checks, tests, packaging and publint first).
+Published as `@luckyhv/drawer-svelte`. `npm publish --access public` runs the type checks, tests,
+packaging and publint first.
 
 ## License
 

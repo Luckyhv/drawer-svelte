@@ -14,7 +14,7 @@
 
 <h2>1. The preset stylesheet</h2>
 <p>
-	<code>import 'drawer-svelte/styles.css'</code> once, then add <code>variant="sheet"</code>, <code>"floating"</code> or
+	<code>import '@luckyhv/drawer-svelte/styles.css'</code> once, then add <code>variant="sheet"</code>, <code>"floating"</code> or
 	<code>"side"</code> to <code>Drawer.Content</code>. The overlay, handle bar, header, body and footer get matching styles.
 	All rules use <code>:where()</code>, so any class you add wins without <code>!important</code>.
 </p>

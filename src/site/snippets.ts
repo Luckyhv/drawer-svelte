@@ -1,10 +1,10 @@
 // Code samples shown on the site (strings, so braces need no escaping).
 
-export const install = `npm i drawer-svelte`;
+export const install = `npm i @luckyhv/drawer-svelte`;
 
 export const quick = `<script>
-  import { Drawer } from 'drawer-svelte';
-  import 'drawer-svelte/styles.css'; // optional preset look
+  import { Drawer } from '@luckyhv/drawer-svelte';
+  import '@luckyhv/drawer-svelte/styles.css'; // optional preset look
 
   let open = $state(false);
 </script>
@@ -166,7 +166,7 @@ export const controlled = `<script>
 >…</Drawer.Root>`;
 
 export const vaulMigration = `- import { Drawer } from 'vaul-svelte';
-+ import { Drawer } from 'drawer-svelte';
++ import { Drawer } from '@luckyhv/drawer-svelte';
 
   <Drawer.Root bind:open>
     <Drawer.Portal>
