@@ -1,0 +1,368 @@
+/* Docs site styles (not part of the package). Warm paper neutrals, no accent colour. */
+:root {
+	--bg: #f6f5f1;
+	--surface: #fbfaf7;
+	--raised: #eceae3;
+	--fg: #1c1b18;
+	--muted: #6f6c63;
+	--line: rgb(28 27 24 / 0.1);
+	--line-strong: rgb(28 27 24 / 0.24);
+	--code-bg: #efede7;
+	--code-fg: #26241f;
+	--sans: 'Geist Variable', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+	--mono: 'Geist Mono Variable', ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+	color-scheme: light;
+}
+:root.dark {
+	--bg: #181715;
+	--surface: #1e1d1a;
+	--raised: #2a2824;
+	--fg: #ebe9e2;
+	--muted: #9c988c;
+	--line: rgb(235 233 226 / 0.1);
+	--line-strong: rgb(235 233 226 / 0.24);
+	--code-bg: #131210;
+	--code-fg: #dedbd2;
+	color-scheme: dark;
+}
+* {
+	box-sizing: border-box;
+}
+html {
+	background: var(--bg);
+	color: var(--fg);
+	font: 15px/1.6 var(--sans);
+	-webkit-font-smoothing: antialiased;
+	-webkit-text-size-adjust: 100%;
+	-webkit-tap-highlight-color: transparent;
+	text-rendering: optimizeLegibility;
+}
+body {
+	margin: 0;
+}
+a {
+	color: inherit;
+	text-underline-offset: 3px;
+	text-decoration-color: var(--line-strong);
+}
+a:hover {
+	text-decoration-color: currentColor;
+}
+:focus-visible {
+	outline: 2px solid var(--fg);
+	outline-offset: 2px;
+}
+::selection {
+	background: var(--fg);
+	color: var(--bg);
+}
+code,
+kbd {
+	font: 0.88em var(--mono);
+}
+:not(pre) > code,
+kbd {
+	background: var(--raised);
+	color: var(--fg);
+	padding: 1px 6px;
+	border-radius: 6px;
+	border: 1px solid var(--line);
+}
+h1,
+h2,
+h3 {
+	font-weight: 600;
+	letter-spacing: -0.025em;
+	line-height: 1.2;
+}
+table {
+	width: 100%;
+	border-collapse: collapse;
+	font-size: 14px;
+	margin: 12px 0 24px;
+	display: block;
+	overflow-x: auto;
+}
+th,
+td {
+	text-align: left;
+	padding: 9px 12px;
+	border-bottom: 1px solid var(--line);
+	vertical-align: top;
+}
+th {
+	color: var(--muted);
+	font-weight: 500;
+	white-space: nowrap;
+}
+td:first-child {
+	white-space: nowrap;
+}
+
+/* Demo pieces */
+.demo-btn {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 6px;
+	height: 40px;
+	padding: 0 16px;
+	border-radius: 10px;
+	border: 1px solid transparent;
+	background: var(--fg);
+	color: var(--bg);
+	font: inherit;
+	font-weight: 500;
+	font-size: 14px;
+	text-decoration: none;
+	cursor: pointer;
+	transition:
+		transform 0.15s,
+		opacity 0.15s;
+}
+.demo-btn:hover {
+	opacity: 0.86;
+}
+.demo-btn:active {
+	transform: scale(0.97);
+}
+.demo-btn.ghost {
+	background: transparent;
+	color: var(--fg);
+	border-color: var(--line-strong);
+}
+.demo-btn.small {
+	height: 32px;
+	padding: 0 12px;
+	font-size: 13px;
+}
+.demo-inline {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+}
+.demo-grid {
+	display: grid;
+	grid-template-columns: repeat(3, 1fr);
+	gap: 8px;
+}
+.demo-tile,
+.demo-option {
+	border: 1px solid var(--drawer-border, var(--_border));
+	background: transparent;
+	color: inherit;
+	font: inherit;
+	border-radius: 12px;
+	padding: 14px 8px;
+	cursor: pointer;
+}
+.demo-option {
+	display: block;
+	width: 100%;
+	text-align: left;
+	padding: 12px 14px;
+	margin-bottom: 6px;
+}
+.demo-option {
+	display: flex;
+	justify-content: space-between;
+	gap: 12px;
+}
+.demo-option span {
+	color: var(--drawer-muted, var(--_muted));
+}
+.demo-option[aria-pressed='true'] {
+	border-color: var(--drawer-fg, var(--_fg));
+	font-weight: 500;
+}
+.demo-tile:hover,
+.demo-option:hover {
+	background: var(--drawer-hover, var(--_hover, transparent));
+}
+.demo-row {
+	display: flex;
+	flex-direction: column;
+	padding: 10px 0;
+	border-bottom: 1px solid var(--drawer-border, var(--_border));
+	font-size: 14px;
+}
+.demo-row span {
+	color: var(--drawer-muted, var(--_muted));
+}
+.demo-note {
+	margin: 0 0 8px;
+	font-size: 13px;
+	color: var(--drawer-muted, var(--_muted));
+}
+.demo-field {
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+	font-size: 13px;
+	margin-bottom: 12px;
+	color: var(--drawer-muted, var(--_muted));
+}
+.demo-field input {
+	height: 44px;
+	padding: 0 12px;
+	border-radius: 10px;
+	border: 1px solid var(--drawer-border, var(--_border));
+	background: transparent;
+	color: var(--drawer-fg, var(--_fg));
+	font: inherit;
+	font-size: 16px;
+}
+
+/* Demo launchers: a card on the landing and examples pages, a plain button inline in the docs. */
+.demo-cards {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(232px, 1fr));
+	gap: 12px;
+}
+.demo-card {
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+	min-height: 188px;
+	padding: 18px;
+	border-radius: 14px;
+	border: 1px solid var(--line);
+	background: var(--surface);
+	transition: border-color 0.2s;
+}
+.demo-card:hover {
+	border-color: var(--line-strong);
+}
+.demo-card-text {
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+	margin-top: 8px;
+}
+.demo-card h3 {
+	margin: 0;
+	font-size: 15px;
+	font-weight: 500;
+	letter-spacing: -0.01em;
+}
+.demo-card p {
+	margin: 0;
+	color: var(--muted);
+	font-size: 13.5px;
+	line-height: 1.5;
+}
+.demo-card-actions {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 8px;
+	margin-top: auto;
+	padding-top: 14px;
+}
+/* The primary button stretches over the whole card. */
+.demo-card-open::after {
+	content: '';
+	position: absolute;
+	inset: 0;
+	border-radius: inherit;
+}
+.demo-card-actions > :not(.demo-card-open) {
+	position: relative;
+	z-index: 1;
+}
+.demo-glyph {
+	display: block;
+	width: 64px;
+	height: 44px;
+	color: var(--fg);
+}
+.demo-glyph .frame {
+	fill: none;
+	stroke: var(--line-strong);
+}
+.demo-glyph .ghost {
+	fill: none;
+	stroke: var(--line-strong);
+	stroke-dasharray: 2 2;
+}
+.demo-glyph .back {
+	fill: currentColor;
+	opacity: 0.28;
+}
+.demo-glyph .sheet {
+	fill: currentColor;
+}
+/* The sheet rests half way out and slides home on hover, on the drawer's own curve. */
+.demo-glyph .sheet {
+	transition: transform 0.5s cubic-bezier(0.32, 0.72, 0, 1);
+}
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+	.demo-card:not(:hover, :focus-within) .sheet {
+		transform: translate(calc(var(--tx, 0px) * 0.5), calc(var(--ty, 0px) * 0.5));
+	}
+}
+.demo-card-open {
+	background: transparent;
+	color: var(--fg);
+	border-color: var(--line-strong);
+	transition:
+		background 0.2s,
+		color 0.2s,
+		border-color 0.2s,
+		transform 0.15s;
+}
+.demo-card:hover .demo-card-open {
+	background: var(--fg);
+	color: var(--bg);
+	border-color: transparent;
+	opacity: 1;
+}
+/* Phones: glyph beside the text, so ten cards stay a short list. */
+@media (max-width: 560px) {
+	.demo-card {
+		display: grid;
+		grid-template-columns: 64px minmax(0, 1fr);
+		gap: 4px 16px;
+		min-height: 0;
+		padding: 16px;
+	}
+	.demo-card-text {
+		margin-top: 0;
+	}
+	.demo-card-actions {
+		grid-column: 2;
+		padding-top: 10px;
+	}
+}
+
+/* Touch screens: every control is a comfortable thumb target. */
+@media (pointer: coarse) {
+	.demo-btn {
+		height: 46px;
+		padding: 0 18px;
+		font-size: 15px;
+	}
+	.demo-btn.small {
+		height: 40px;
+		padding: 0 16px;
+		font-size: 14px;
+	}
+	.demo-tile,
+	.demo-option {
+		padding-block: 15px;
+		font-size: 15px;
+	}
+	.demo-option {
+		margin-bottom: 8px;
+	}
+	/* No hover on touch: show the press instead. */
+	.demo-card:active {
+		border-color: var(--line-strong);
+		background: var(--raised);
+	}
+	.demo-tile:active,
+	.demo-option:active {
+		background: var(--drawer-hover, var(--_hover, transparent));
+	}
+}
