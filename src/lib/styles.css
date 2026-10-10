@@ -1,0 +1,238 @@
+/*
+ * drawer-svelte optional stylesheet.
+ *
+ *   import 'drawer-svelte/styles.css';
+ *
+ * Everything is wrapped in :where() (zero specificity), so any class you put
+ * on a part wins. Colours resolve as `var(--drawer-X, var(--_X))`: set the
+ * public `--drawer-*` properties anywhere (`:root`, a theme scope, one
+ * drawer's `style`, or the `colors` prop) and they beat the built-in theme.
+ *
+ * Public properties:
+ *   --drawer-bg --drawer-fg --drawer-muted --drawer-border --drawer-handle
+ *   --drawer-overlay --drawer-shadow --drawer-accent --drawer-hover
+ *   --drawer-radius --drawer-gap --drawer-width --drawer-max-height --drawer-z
+ */
+
+/* ── Light (default) ─────────────────────────────────────────────────── */
+:where([data-drawer-content], [data-drawer-overlay]) {
+	--_bg: #ffffff;
+	--_fg: #0a0a0b;
+	--_muted: #6b6b76;
+	--_border: rgb(0 0 0 / 0.08);
+	--_handle: rgb(0 0 0 / 0.18);
+	--_overlay: rgb(10 10 12 / 0.4);
+	--_shadow: 0 -12px 48px rgb(0 0 0 / 0.14);
+	--_accent: #0a0a0b;
+	--_hover: rgb(0 0 0 / 0.05);
+}
+
+/* ── Dark: explicit, a `.dark` ancestor on auto, or the OS on auto ──── */
+:where([data-drawer-theme='dark']),
+:where(.dark [data-drawer-theme='auto'], [data-theme='dark'] [data-drawer-theme='auto']) {
+	--_bg: #17171a;
+	--_fg: #f5f5f7;
+	--_muted: #9a9aa6;
+	--_border: rgb(255 255 255 / 0.08);
+	--_handle: rgb(255 255 255 / 0.22);
+	--_overlay: rgb(0 0 0 / 0.6);
+	--_shadow: 0 -12px 48px rgb(0 0 0 / 0.55);
+	--_accent: #f5f5f7;
+	--_hover: rgb(255 255 255 / 0.07);
+}
+@media (prefers-color-scheme: dark) {
+	:where([data-drawer-theme='auto']):not(:where(.light *, [data-theme='light'] *)) {
+		--_bg: #17171a;
+		--_fg: #f5f5f7;
+		--_muted: #9a9aa6;
+		--_border: rgb(255 255 255 / 0.08);
+		--_handle: rgb(255 255 255 / 0.22);
+		--_overlay: rgb(0 0 0 / 0.6);
+		--_shadow: 0 -12px 48px rgb(0 0 0 / 0.55);
+		--_accent: #f5f5f7;
+		--_hover: rgb(255 255 255 / 0.07);
+	}
+}
+
+/* ── Overlay ─────────────────────────────────────────────────────────── */
+:where([data-drawer-overlay]) {
+	position: fixed;
+	inset: 0;
+	z-index: var(--drawer-z, 50);
+	background: var(--drawer-overlay, var(--_overlay));
+}
+
+/* ── Content: shared look for every variant ──────────────────────────── */
+:where([data-drawer-content][data-variant]) {
+	box-sizing: border-box;
+	position: fixed;
+	z-index: calc(var(--drawer-z, 50) + 1);
+	display: flex;
+	flex-direction: column;
+	overflow: hidden;
+	background: var(--drawer-bg, var(--_bg));
+	color: var(--drawer-fg, var(--_fg));
+	box-shadow: var(--drawer-shadow, var(--_shadow));
+	border: 1px solid var(--drawer-border, var(--_border));
+}
+
+/* sheet: attached to its edge */
+:where([data-variant='sheet'][data-direction='bottom']) {
+	left: 0;
+	right: 0;
+	bottom: 0;
+	max-height: var(--drawer-max-height, 96dvh);
+	border-width: 1px 0 0;
+	border-radius: var(--drawer-radius, 20px) var(--drawer-radius, 20px) 0 0;
+	padding-bottom: env(safe-area-inset-bottom);
+}
+:where([data-variant='sheet'][data-direction='top']) {
+	left: 0;
+	right: 0;
+	top: 0;
+	max-height: var(--drawer-max-height, 96dvh);
+	border-width: 0 0 1px;
+	border-radius: 0 0 var(--drawer-radius, 20px) var(--drawer-radius, 20px);
+	padding-top: env(safe-area-inset-top);
+}
+
+/* floating: inset from the edges, fully rounded */
+:where([data-variant='floating'][data-direction='bottom']) {
+	left: var(--drawer-gap, 8px);
+	right: var(--drawer-gap, 8px);
+	bottom: calc(var(--drawer-gap, 8px) + env(safe-area-inset-bottom));
+	max-height: var(--drawer-max-height, 80dvh);
+	border-radius: var(--drawer-radius, 20px);
+}
+:where([data-variant='floating'][data-direction='top']) {
+	left: var(--drawer-gap, 8px);
+	right: var(--drawer-gap, 8px);
+	top: calc(var(--drawer-gap, 8px) + env(safe-area-inset-top));
+	max-height: var(--drawer-max-height, 80dvh);
+	border-radius: var(--drawer-radius, 20px);
+}
+:where([data-variant='floating'][data-direction='left'], [data-variant='floating'][data-direction='right']) {
+	top: var(--drawer-gap, 8px);
+	bottom: var(--drawer-gap, 8px);
+	width: var(--drawer-width, min(380px, calc(100vw - 2 * var(--drawer-gap, 8px))));
+	border-radius: var(--drawer-radius, 20px);
+}
+:where([data-variant='floating'][data-direction='left']) {
+	left: var(--drawer-gap, 8px);
+}
+:where([data-variant='floating'][data-direction='right']) {
+	right: var(--drawer-gap, 8px);
+}
+
+/* side (and sheet on a side edge): full height panel */
+:where(
+		[data-variant='side'][data-direction='left'],
+		[data-variant='side'][data-direction='right'],
+		[data-variant='sheet'][data-direction='left'],
+		[data-variant='sheet'][data-direction='right']
+	) {
+	top: 0;
+	bottom: 0;
+	width: var(--drawer-width, min(380px, 88vw));
+}
+:where([data-variant='side'][data-direction='right'], [data-variant='sheet'][data-direction='right']) {
+	right: 0;
+	border-width: 0 0 0 1px;
+	border-radius: var(--drawer-radius, 20px) 0 0 var(--drawer-radius, 20px);
+}
+:where([data-variant='side'][data-direction='left'], [data-variant='sheet'][data-direction='left']) {
+	left: 0;
+	border-width: 0 1px 0 0;
+	border-radius: 0 var(--drawer-radius, 20px) var(--drawer-radius, 20px) 0;
+}
+:where([data-variant='side'][data-direction='bottom']) {
+	left: 0;
+	right: 0;
+	bottom: 0;
+}
+
+/* ── Handle ──────────────────────────────────────────────────────────── */
+:where([data-drawer-handle]:not([data-drawer-header])) {
+	display: flex;
+	flex-shrink: 0;
+	justify-content: center;
+	padding: 12px 0 8px;
+}
+:where([data-drawer-handle-bar]) {
+	width: 40px;
+	height: 4px;
+	border-radius: 999px;
+	background: var(--drawer-handle, var(--_handle));
+}
+:where([data-drawer-handle][data-direction='left'], [data-drawer-handle][data-direction='right']) {
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	align-items: center;
+	padding: 0 6px;
+}
+:where([data-drawer-handle][data-direction='right']) {
+	left: 0;
+}
+:where([data-drawer-handle][data-direction='left']) {
+	right: 0;
+}
+:where([data-drawer-handle][data-direction='left'], [data-drawer-handle][data-direction='right'])
+	:where([data-drawer-handle-bar]) {
+	width: 4px;
+	height: 40px;
+}
+
+/* ── Header / Body / Footer ──────────────────────────────────────────── */
+:where([data-drawer-header]) {
+	display: flex;
+	flex-shrink: 0;
+	align-items: center;
+	gap: 8px;
+	padding: 14px 12px 12px 16px;
+	border-bottom: 1px solid var(--drawer-border, var(--_border));
+	cursor: grab;
+}
+:where([data-drawer-header-text]) {
+	flex: 1;
+	min-width: 0;
+}
+:where([data-drawer-title]) {
+	margin: 0;
+	font-size: 16px;
+	font-weight: 600;
+	line-height: 1.3;
+}
+:where([data-drawer-description]) {
+	margin: 2px 0 0;
+	font-size: 13px;
+	color: var(--drawer-muted, var(--_muted));
+}
+:where([data-drawer-close]) {
+	display: grid;
+	place-items: center;
+	width: 32px;
+	height: 32px;
+	flex-shrink: 0;
+	border: 0;
+	border-radius: 999px;
+	background: transparent;
+	color: var(--drawer-muted, var(--_muted));
+	cursor: pointer;
+}
+:where([data-drawer-close]:hover) {
+	background: var(--drawer-hover, var(--_hover));
+	color: var(--drawer-fg, var(--_fg));
+}
+:where([data-drawer-body]) {
+	padding: 12px 16px;
+	--drawer-body-pad: 16px;
+}
+:where([data-drawer-footer]) {
+	display: flex;
+	flex-shrink: 0;
+	justify-content: flex-end;
+	gap: 8px;
+	padding: 12px 16px;
+	border-top: 1px solid var(--drawer-border, var(--_border));
+}
