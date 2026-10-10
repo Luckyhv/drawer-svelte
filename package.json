@@ -1,0 +1,67 @@
+{
+	"name": "drawer-svelte",
+	"version": "0.1.0",
+	"description": "Accessible, gesture-driven drawer (bottom sheet) for Svelte 5. Snap points, touch-safe scroll handoff, nested drawers, no body pinning.",
+	"license": "MIT",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/Luckyhv/drawer-svelte.git"
+	},
+	"homepage": "https://github.com/Luckyhv/drawer-svelte#readme",
+	"bugs": "https://github.com/Luckyhv/drawer-svelte/issues",
+	"type": "module",
+	"keywords": [
+		"svelte",
+		"svelte5",
+		"drawer",
+		"bottom-sheet",
+		"sheet",
+		"vaul",
+		"dialog",
+		"mobile"
+	],
+	"scripts": {
+		"dev": "vite dev",
+		"build": "vite build && npm run package",
+		"package": "svelte-kit sync && svelte-package && publint",
+		"package:watch": "svelte-kit sync && svelte-package -w",
+		"prepublishOnly": "npm run check && npm test && npm run package",
+		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
+		"test": "vitest run"
+	},
+	"files": [
+		"dist",
+		"!dist/**/*.test.*"
+	],
+	"sideEffects": [
+		"**/*.css"
+	],
+	"svelte": "./dist/index.js",
+	"types": "./dist/index.d.ts",
+	"exports": {
+		".": {
+			"types": "./dist/index.d.ts",
+			"svelte": "./dist/index.js",
+			"default": "./dist/index.js"
+		},
+		"./styles.css": "./dist/styles.css"
+	},
+	"peerDependencies": {
+		"svelte": "^5.29.0"
+	},
+	"devDependencies": {
+		"@fontsource-variable/geist": "^5.3.0",
+		"@fontsource-variable/geist-mono": "^5.3.0",
+		"@sveltejs/adapter-static": "^3.0.10",
+		"@sveltejs/kit": "^2.61.1",
+		"@sveltejs/package": "^2.5.4",
+		"@sveltejs/vite-plugin-svelte": "^7.1.2",
+		"happy-dom": "^20.14.6",
+		"publint": "^0.3.15",
+		"svelte": "^5.55.9",
+		"svelte-check": "^4.4.8",
+		"typescript": "^6.0.3",
+		"vite": "^8.0.14",
+		"vitest": "^4.0.0"
+	}
+}
