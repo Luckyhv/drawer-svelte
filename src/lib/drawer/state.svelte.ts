@@ -104,6 +104,10 @@ type Gesture = {
 	handoff: boolean;
 	samples: { v: number; t: number }[];
 	moved: boolean;
+	/** Finger position at touch-down. `start` moves when a drag begins; this does not. */
+	origin: number;
+	/** A touch drag still within `TAP_SLOP` of where it landed: it may yet be a tap, so the sheet stays put. */
+	held: boolean;
 	size: number;
 	/** Offset the drag started from: the resting spot, or wherever a running animation was caught. */
 	base: number;
@@ -112,6 +116,8 @@ type Gesture = {
 export const DEFAULT_EASE = 'cubic-bezier(0.32, 0.72, 0, 1)';
 /** ms of momentum a flick carries toward the snap it lands on. */
 const FLICK_MOMENTUM = 100;
+/** px a finger may wander and still be tapping. Browsers click up to about this far. */
+const TAP_SLOP = 10;
 let uid = 0;
 /** Drawers that are open (not closing), in open order. Reactive, so a covered drawer can recede. */
 const openStack = $state<DrawerState[]>([]);
@@ -775,6 +781,8 @@ export class DrawerState {
 			handoff: false,
 			samples: [],
 			moved: false,
+			origin: this.#main(x, y),
+			held: false,
 			size: this.vertical ? el.offsetHeight : el.offsetWidth,
 			base: this.resting
 		};
@@ -792,6 +800,9 @@ export class DrawerState {
 		g.start = at; // no jump: measure from here
 		g.base = base;
 		g.samples = [];
+		// Deciding who owns a touch has to happen on its first pixels, long before
+		// it can be told from a tap. Handles are only ever dragged.
+		g.held = g.pointer === 'touch' && !g.fromHandle;
 		this.#setRelease(null);
 		this.#liveDrag = g.base - this.resting;
 		this.dragging = true;
@@ -858,7 +869,7 @@ export class DrawerState {
 			}
 		}
 
-		const raw = this.#main(x, y) - g.start;
+		let raw = this.#main(x, y) - g.start;
 		if (g.handoff && g.scroller) {
 			if (raw < 0) {
 				// Pushed back to where the pull began: the sheet rests and the list
@@ -872,6 +883,15 @@ export class DrawerState {
 			// These moves cannot be cancelled, so the browser may still try to
 			// scroll the list under the finger: keep it at its edge.
 			pinToCloseEdge(g.scroller, this.direction);
+		}
+		if (g.held) {
+			const at = this.#main(x, y);
+			if (Math.abs(at - g.origin) > TAP_SLOP || Math.abs(cross) > TAP_SLOP) {
+				g.held = false;
+				g.moved = true;
+				g.start = at; // no jump: the sheet follows from here
+			}
+			raw = 0;
 		}
 		let offset = g.base + raw;
 		if (offset < 0) offset = -dampen(-offset);
@@ -887,6 +907,8 @@ export class DrawerState {
 			});
 		}
 		if (Math.abs(raw) > 3) g.moved = true;
+		// A held sheet is not moving: its samples would only slow the flick that follows.
+		if (g.held) return cancelable;
 		g.samples.push({ v: offset, t: time });
 		if (g.samples.length > 20) g.samples.shift();
 		return cancelable;

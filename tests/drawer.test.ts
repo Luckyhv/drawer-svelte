@@ -145,7 +145,8 @@ describe('drawer lifecycle and mobile gestures', () => {
 		touch(el, 'touchmove', 100);
 		expect(request).toHaveBeenCalledTimes(1);
 		frames[0](0);
-		expect(el.style.transform).toContain('90px');
+		// The sheet follows from where the touch stopped being a possible tap.
+		expect(el.style.transform).toContain('50px');
 		touch(el, 'touchcancel', 100);
 	});
 
@@ -174,9 +175,9 @@ describe('drawer lifecycle and mobile gestures', () => {
 		Object.defineProperties(el, { offsetWidth: { value: 200 }, offsetHeight: { value: 800 } });
 		drawer.overlayEl = document.createElement('div');
 		touch(el, 'touchstart', 0, 0);
-		touch(el, 'touchmove', 0, 10);
-		touch(el, 'touchmove', 0, 110);
-		touch(el, 'touchcancel', 0, 110);
+		touch(el, 'touchmove', 0, 20);
+		touch(el, 'touchmove', 0, 120);
+		touch(el, 'touchcancel', 0, 120);
 		expect(Number(drawer.overlayEl.style.opacity)).toBeCloseTo(0.5);
 	});
 
@@ -219,6 +220,99 @@ describe('drawer lifecycle and mobile gestures', () => {
 		expect(document.documentElement.style.userSelect).toBe('text');
 		window.dispatchEvent(new PointerEvent('pointermove', { pointerId: 3, clientY: 400 }));
 		expect(drawer.dragging).toBe(false);
+	});
+});
+
+describe('taps and drags over a list', () => {
+	function scene(scrollTop = 0, attrs: Record<string, string> = {}) {
+		const frames: FrameRequestCallback[] = [];
+		vi.stubGlobal('requestAnimationFrame', (cb: FrameRequestCallback) => frames.push(cb));
+		vi.stubGlobal('cancelAnimationFrame', vi.fn());
+		const fixture = setup();
+		Object.defineProperty(fixture.el, 'offsetHeight', { value: 400 });
+		const list = document.createElement('div');
+		list.style.overflowY = 'auto';
+		Object.defineProperties(list, { scrollHeight: { value: 1000 }, clientHeight: { value: 200 } });
+		list.scrollTop = scrollTop;
+		for (const [name, value] of Object.entries(attrs)) list.setAttribute(name, value);
+		const button = document.createElement('button');
+		list.append(button);
+		fixture.el.append(list);
+		const onClick = vi.fn();
+		button.addEventListener('click', onClick);
+		/** Finger down at 100, wandering a pixel at a time to `100 + drift`, then up. The browser clicks. */
+		const tap = (drift: number) => {
+			touch(button, 'touchstart', 100);
+			for (let y = 1; y <= drift; y++) {
+				touch(button, 'touchmove', 100 + y);
+				frames.splice(0).forEach((frame) => frame(0));
+			}
+			const moved = fixture.el.style.transform;
+			touch(button, 'touchend', 100 + drift);
+			button.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
+			return moved;
+		};
+		return { ...fixture, list, button, onClick, tap };
+	}
+	const still = (transform: string) => transform === '' || /translate3d\(0(px)?, 0px, 0(px)?\)/.test(transform);
+
+	it.each([2, 5, 10])('a tap that drifts %ipx still clicks and leaves the sheet where it is', (drift) => {
+		const { props, onClick, tap } = scene();
+		expect(still(tap(drift))).toBe(true);
+		expect(onClick).toHaveBeenCalledTimes(1);
+		expect(props.open).toBe(true);
+	});
+
+	it('a tap that wanders up and back down does not move the sheet or the list', () => {
+		const { drawer, button, onClick, el } = scene();
+		touch(button, 'touchstart', 100);
+		for (const y of [99, 98, 100, 103, 104]) touch(button, 'touchmove', y);
+		expect(still(el.style.transform)).toBe(true);
+		touch(button, 'touchend', 104);
+		button.click();
+		expect(onClick).toHaveBeenCalledTimes(1);
+		expect(drawer.drag).toBe(0);
+	});
+
+	it('a 12px drift is a drag: the sheet follows and the element under the finger is not clicked', () => {
+		const { onClick, tap } = scene();
+		expect(still(tap(12))).toBe(false);
+		expect(onClick).not.toHaveBeenCalled();
+	});
+
+	it('pulling a list down from its top closes the drawer without clicking', () => {
+		const { props, button, onClick } = scene();
+		touch(button, 'touchstart', 100);
+		for (let y = 101; y <= 400; y += 13) expect(touch(button, 'touchmove', y).defaultPrevented).toBe(true);
+		touch(button, 'touchend', 400);
+		button.click();
+		expect(onClick).not.toHaveBeenCalled();
+		expect(props.open).toBe(false);
+	});
+
+	it('a list that is not at its top scrolls, and a tap in it clicks', () => {
+		const { drawer, onClick, tap, button } = scene(100);
+		tap(5);
+		expect(onClick).toHaveBeenCalledTimes(1);
+		touch(button, 'touchstart', 100);
+		expect(touch(button, 'touchmove', 160).defaultPrevented).toBe(false);
+		expect(drawer.dragging).toBe(false);
+		touch(button, 'touchend', 160);
+	});
+
+	it('a handle moves the sheet from the first pixels', () => {
+		const { tap } = scene(0, { 'data-drawer-handle': '' });
+		expect(still(tap(5))).toBe(false);
+	});
+
+	it('a mouse drag of a few pixels still swallows the click', () => {
+		const { el, button, onClick } = scene();
+		button.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true, pointerType: 'mouse', isPrimary: true, pointerId: 3, clientY: 100 }));
+		for (const y of [105, 109]) window.dispatchEvent(new PointerEvent('pointermove', { pointerId: 3, clientY: y }));
+		window.dispatchEvent(new PointerEvent('pointerup', { pointerId: 3, clientY: 109 }));
+		button.click();
+		expect(onClick).not.toHaveBeenCalled();
+		expect(el.style.transform).toContain('4px');
 	});
 });
 

@@ -74,7 +74,8 @@ drag  -> preventDefault each touchmove (the browser never takes over)`;
 <Code code={decide} lang="txt" title="per gesture" />
 <p>
 	Pulling past fully open is rubber-banded with the same curve family iOS uses. A drag that moves more than a few pixels swallows the
-	click that follows it, so releasing over a button doesn't press it.
+	click that follows it, so releasing over a button doesn't press it. On touch, a drag that starts off the handle holds the sheet
+	still until the finger is more than 10px from where it landed, so a tap that drifts neither moves the sheet nor loses its click.
 </p>
 
 <h2>Release</h2>
