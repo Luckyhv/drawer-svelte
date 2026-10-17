@@ -81,6 +81,12 @@ drag  -> preventDefault each touchmove (the browser never takes over)`;
 <h2>Release</h2>
 <Code code={release} lang="txt" title="decideRelease (math.ts)" />
 <p>Velocity is measured over the last ~100&nbsp;ms of samples, not the whole drag, so a slow drag that ends with a flick still counts as a flick.</p>
+<p>
+	The settle leaves at the finger's speed. After a flick it lands a hair past its target and springs back (1–3% of the
+	distance, more for harder flicks), like iOS's sheet spring; a slow release eases straight in with no overshoot. Both are
+	plain <code>cubic-bezier</code> curves on <code>transform</code>, so they stay on the compositor, and reduced motion still
+	skips the animation.
+</p>
 
 <h2>Layers, Escape and focus</h2>
 <p>

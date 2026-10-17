@@ -947,7 +947,8 @@ export class DrawerState {
 		const distance = Math.abs(target - offset);
 		const toward = (Math.sign(target - offset) || 1) * velocity;
 		const base = result.action === 'close' ? Math.round(p.duration * 0.7) : p.duration;
-		this.#setRelease(base, p.easing === DEFAULT_EASE && base > 0 ? springEasing(distance, toward, base) : null);
+		const flick = Math.abs(velocity) >= p.velocityThreshold;
+		this.#setRelease(base, p.easing === DEFAULT_EASE && base > 0 ? springEasing(distance, toward, base, flick) : null);
 		this.dragging = false;
 		if (result.action === 'close') {
 			// Keep the dragged offset: the close transition starts from here.

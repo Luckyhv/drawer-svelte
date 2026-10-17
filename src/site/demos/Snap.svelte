@@ -28,7 +28,7 @@
 		<Drawer.Overlay />
 		<Drawer.Content variant="sheet">
 			<Drawer.Handle />
-			<Drawer.Header title="Activity" description="Snap {snap + 1} of 2. Drag up to expand, pull down at the top to shrink." />
+			<Drawer.Header title="Activity" description="Snap {snap + 1} of 2. Flick up to expand (it springs slightly past), drag slowly to settle with no bounce." />
 			<Drawer.Body>
 				{#each activity as a (a.id)}
 					<div class="demo-row"><b>{a.name}</b><span>{a.text}</span></div>

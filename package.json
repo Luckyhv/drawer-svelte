@@ -1,6 +1,6 @@
 {
 	"name": "@luckyhv/drawer-svelte",
-	"version": "1.0.1",
+	"version": "1.1.0",
 	"description": "Accessible, gesture-driven drawer (bottom sheet) for Svelte 5. Snap points, touch-safe scroll handoff, nested drawers, no body pinning.",
 	"license": "MIT",
 	"repository": {

@@ -143,6 +143,23 @@ describe('springEasing', () => {
 			expect([x2, y2]).toEqual([0.2, 1]);
 		}
 	});
+	it('a flick settles slightly past the target and back', () => {
+		const peak = (easing: string) => {
+			const [, y1, , y2] = points(easing);
+			let max = 0;
+			for (let t = 0; t <= 1; t += 0.001) max = Math.max(max, 3 * (1 - t) ** 2 * t * y1 + 3 * (1 - t) * t * t * y2 + t ** 3);
+			return max;
+		};
+		const soft = peak(springEasing(300, 0.5, 450, true));
+		const hard = peak(springEasing(300, 5, 450, true));
+		expect(soft).toBeGreaterThan(1.005);
+		expect(hard).toBeGreaterThan(soft);
+		expect(hard).toBeLessThan(1.04);
+		expect(points(springEasing(300, 5, 450, true)).at(-1)).toBe(1.1);
+	});
+	it('a slow release never overshoots', () => {
+		expect(points(springEasing(300, 0.2, 450)).at(-1)).toBe(1);
+	});
 	it('drifts back briefly when released moving away', () => {
 		expect(points(springEasing(300, -0.5, 450))[1]).toBeLessThan(0);
 	});

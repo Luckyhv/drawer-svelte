@@ -144,14 +144,17 @@ export function velocityOf(samples: readonly { v: number; t: number }[], window 
  * to rest, instead of starting at a fixed pace whatever the finger was doing.
  * From a standstill it accelerates gently; after a flick it carries the
  * flick's speed. `velocity` is px/ms toward the target (negative = moving
- * away). It never overshoots, and being a plain cubic-bezier it runs on the
- * compositor in every browser.
+ * away). A `flick` settles past the target by ~1-3% (more for harder flicks)
+ * and back, like Apple's sheet spring (damping 0.8); anything slower never
+ * overshoots. Being a plain cubic-bezier it runs on the compositor in every
+ * browser.
  */
-export function springEasing(distance: number, velocity: number, duration: number): string {
+export function springEasing(distance: number, velocity: number, duration: number, flick = false): string {
 	// Start slope: how fast the finger was going relative to a linear run.
 	const slope = distance > 0 ? Math.max(-1, Math.min((velocity * duration) / distance, 8)) : 0;
-	// A bezier starts with slope y1/x1. Keep y1 within 1 so it cannot overshoot.
+	// A bezier starts with slope y1/x1. Keep y1 within 1 so the start cannot overshoot.
 	const x1 = slope * 0.3 <= 1 ? 0.3 : 1 / slope;
 	const y1 = slope * x1;
-	return `cubic-bezier(${+x1.toFixed(3)}, ${+y1.toFixed(3)}, 0.2, 1)`;
+	// y2 past 1 lands the curve from beyond the target: peaks 1-3%, matching a 0.8-damped spring.
+	return `cubic-bezier(${+x1.toFixed(3)}, ${+y1.toFixed(3)}, 0.2, ${flick ? 1.1 : 1})`;
 }
