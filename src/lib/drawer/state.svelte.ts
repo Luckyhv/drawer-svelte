@@ -150,7 +150,6 @@ export class DrawerState {
 	#unlock: (() => void) | null = null;
 	#closeTimer: ReturnType<typeof setTimeout> | null = null;
 	#lastScroll = 0;
-	#paintFrame: number | null = null;
 	#pointerCleanup: (() => void) | null = null;
 	#savedUserSelect: string | null = null;
 	#closeCleanup: (() => void) | null = null;
@@ -507,7 +506,9 @@ export class DrawerState {
 
 		const heightMode = p.snapSizing === 'height' && this.hasSnaps;
 		const frame = shown
-			? this.#frame(this.drag)
+			// A reactive style refresh must preserve the position last painted by
+			// the gesture, rather than snapping back to the resting `drag` state.
+			? this.#frame(this.dragging ? this.#liveDrag : this.drag)
 			: {
 					transform: this.#translate(`calc(100% + ${this.gap + 8}px)`),
 					size: heightMode ? this.snapSizes[this.activeSnap] : this.maxSize
@@ -532,7 +533,7 @@ export class DrawerState {
 
 	get overlayOpacity(): number {
 		if (this.phase !== 'open') return 0;
-		return this.dragging ? this.#opacityAt(this.drag) : 1;
+		return this.dragging ? this.#opacityAt(this.#liveDrag) : 1;
 	}
 
 	/** Fade only once the drawer is below its smallest snap. */
@@ -545,7 +546,10 @@ export class DrawerState {
 
 	get overlayStyle(): string {
 		const p = this.#props();
-		return `opacity: ${this.overlayOpacity}; transition: ${this.dragging ? 'none' : `opacity ${this.#releaseMs ?? p.duration}ms ${this.#releaseEase ?? p.easing}`}; will-change: opacity; touch-action: none;`;
+		// Content unmounts both parts at the end of its transition. The backdrop
+		// must finish on that same timeline, including programmatic closes.
+		const duration = this.#releaseMs ?? (this.phase === 'closing' ? Math.round(p.duration * 0.7) : p.duration);
+		return `opacity: ${this.overlayOpacity}; transition: ${this.dragging ? 'none' : `opacity ${duration}ms ${this.#releaseEase ?? p.easing}`}; will-change: opacity; touch-action: none;`;
 	}
 
 	get theme(): DrawerTheme {
@@ -663,8 +667,6 @@ export class DrawerState {
 	}
 
 	#cancelGesture() {
-		if (this.#paintFrame !== null) cancelAnimationFrame(this.#paintFrame);
-		this.#paintFrame = null;
 		this.#pointerCleanup?.();
 		this.#pointerCleanup = null;
 		if (this.#savedUserSelect !== null) {
@@ -900,12 +902,9 @@ export class DrawerState {
 			if (offset > floor) offset = floor + dampen(offset - floor);
 		}
 		this.#liveDrag = offset - this.resting;
-		if (this.#paintFrame === null) {
-			this.#paintFrame = requestAnimationFrame(() => {
-				this.#paintFrame = null;
-				this.#paint(this.#liveDrag);
-			});
-		}
+		// Paint now, like vaul: waiting for rAF can land the move a frame late,
+		// and a few transform writes per frame are cheap.
+		this.#paint(this.#liveDrag);
 		if (Math.abs(raw) > 3) g.moved = true;
 		// A held sheet is not moving: its samples would only slow the flick that follows.
 		if (g.held) return cancelable;

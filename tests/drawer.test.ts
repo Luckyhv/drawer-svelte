@@ -34,6 +34,30 @@ function touch(el: HTMLElement, type: string, y: number, x = 20) {
 }
 
 describe('drawer lifecycle and mobile gestures', () => {
+	it('keeps the backdrop and panel on the same close timeline', () => {
+		const { drawer, props } = setup({ duration: 450 });
+		expect(drawer.overlayStyle).toContain('opacity 450ms');
+		props.open = false;
+		flushSync();
+		expect(drawer.contentStyle).toContain('transform 315ms');
+		expect(drawer.overlayStyle).toContain('opacity 315ms');
+	});
+
+	it('preserves the live position and opacity when styles are refreshed during a drag', () => {
+		const { drawer, el } = setup();
+		Object.defineProperty(el, 'offsetHeight', { value: 400 });
+		drawer.overlayEl = document.createElement('div');
+		touch(el, 'touchstart', 0);
+		touch(el, 'touchmove', 10);
+		touch(el, 'touchmove', 50);
+		touch(el, 'touchmove', 150);
+		expect(el.style.transform).toBe('translate3d(0, 100px, 0)');
+		// Svelte rewrites the style attribute when another tracked input changes.
+		expect(drawer.contentStyle).toContain(`transform: ${el.style.transform}`);
+		expect(drawer.overlayStyle).toContain('opacity: 0.75;');
+		touch(el, 'touchcancel', 150);
+	});
+
 	it('reopening during close releases the page lock and restores the original focus', () => {
 		vi.useFakeTimers();
 		const trigger = document.createElement('button');
@@ -133,18 +157,15 @@ describe('drawer lifecycle and mobile gestures', () => {
 		expect(document.documentElement.style.overflow).toBe('hidden');
 	});
 
-	it('coalesces multiple touch moves into one animation frame', () => {
-		const frames: FrameRequestCallback[] = [];
-		const request = vi.fn((cb: FrameRequestCallback) => { frames.push(cb); return frames.length; });
+	it('paints each touch move without waiting for an animation frame', () => {
+		const request = vi.fn();
 		vi.stubGlobal('requestAnimationFrame', request);
-		vi.stubGlobal('cancelAnimationFrame', vi.fn());
 		const { el } = setup();
 		touch(el, 'touchstart', 0);
 		touch(el, 'touchmove', 10);
 		touch(el, 'touchmove', 50);
 		touch(el, 'touchmove', 100);
-		expect(request).toHaveBeenCalledTimes(1);
-		frames[0](0);
+		expect(request).not.toHaveBeenCalled();
 		// The sheet follows from where the touch stopped being a possible tap.
 		expect(el.style.transform).toContain('50px');
 		touch(el, 'touchcancel', 100);
